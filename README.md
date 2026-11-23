@@ -7,11 +7,11 @@ FOCP-I (C Programming) Mini Project
 
 | S.No | Name | Roll No. | GitHub Username |
 |------|------|----------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 1 | Ayush Raj | 26CSU383 | AyusshR |
+| 2 | Manas Manchanda | 26CSU037 | manasmanchanda |
+| 3 | Devansh | 26CSU032 | Devansh1908-eq |
+| 4 | Shubham Saini| 26CSU015 | Shubham-Saini015 |
+| 5 | Yuganshu Soni | 26CSU036 | yuganshusoni55 |
 
 ## Description
 
