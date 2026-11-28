@@ -1,31 +1,12 @@
-/*
- * Hangman - Word Guessing Game
- * FOCP-I (C Programming) Mini Project
- *
- * The computer picks a secret word from a predefined list and the player
- * guesses one letter at a time. The player wins by revealing the whole word
- * before using up MAX_WRONG_GUESSES wrong guesses.
- *
- * Team: Dragon Warriors
- *
- * C concepts used: strings, character arrays, pointers, functions,
- *                  random number generation, input validation
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
 
-#define MAX_WRONG_GUESSES  6    /* wrong guesses allowed per round        */
-#define MAX_WORD_LENGTH    32   /* longest word + room for the '\0'       */
-#define ALPHABET_SIZE      26   /* letters a-z, so at most 26 guesses     */
-#define INPUT_BUFFER_SIZE  64   /* size of the line buffer for fgets()    */
+#define MAX_WRONG 6
 
-/* Predefined word list (lowercase letters only; add more any time) */
-static const char *words[] = {
-    /* programming and computing */
+const char *words[] = {
     "computer", "pointer", "program", "keyboard", "function",
     "variable", "compiler", "software", "algorithm", "terminal",
     "memory", "array", "string", "integer", "loop",
@@ -34,118 +15,77 @@ static const char *words[] = {
     "boolean", "recursion", "structure", "operator", "keyword",
     "compile", "execute", "console", "storage", "processor",
     "download", "firewall", "password",
-
-    /* animals */
     "elephant", "giraffe", "dolphin", "penguin", "kangaroo",
     "cheetah", "leopard", "buffalo", "squirrel", "crocodile",
     "butterfly", "hedgehog", "panther", "peacock", "octopus",
     "tortoise", "gorilla", "sparrow", "parrot", "monkey",
-
-    /* countries and places */
     "india", "canada", "germany", "brazil", "australia",
     "japan", "mexico", "egypt", "nepal", "sweden",
     "mountain", "volcano", "desert", "island", "jungle",
     "waterfall", "glacier", "valley", "ocean", "forest",
-
-    /* food */
     "pizza", "burger", "noodles", "sandwich", "chocolate",
     "biryani", "pancake", "mango", "banana", "pineapple",
     "strawberry", "avocado", "broccoli", "potato", "tomato",
-
-    /* everyday objects and general words */
     "umbrella", "bicycle", "backpack", "notebook", "pencil",
     "calendar", "elevator", "lantern", "mirror", "window",
     "science", "history", "teacher", "student",
     "adventure", "treasure", "journey", "rainbow", "thunder",
     "football", "cricket", "swimming", "guitar", "painting"
 };
-static const int WORD_COUNT = (int)(sizeof(words) / sizeof(words[0]));
+int wordCount = sizeof(words) / sizeof(words[0]);
 
-/* ------------------------------------------------------------------ */
-/* Word and display helpers                                           */
-/* ------------------------------------------------------------------ */
-
-/* Return a random word from the list. */
-const char *pickRandomWord(void) {
-    return words[rand() % WORD_COUNT];
+const char *pickWord(void) {
+    return words[rand() % wordCount];
 }
 
-/* Fill the display string with '_' (one per letter) and terminate it. */
-void initDisplay(char *display, int wordLength) {
-    for (int i = 0; i < wordLength; i++) {
+void initDisplay(char *display, int length) {
+    for (int i = 0; i < length; i++) {
         display[i] = '_';
     }
-    display[wordLength] = '\0';
+    display[length] = '\0';
 }
 
-/*
- * Reveal every position of the secret word that matches the guessed letter.
- * Returns how many letters were revealed (0 means a wrong guess).
- */
-int revealLetter(const char *secretWord, char *display, char guess) {
-    int revealedCount = 0;
-
-    for (int i = 0; secretWord[i] != '\0'; i++) {
-        if (secretWord[i] == guess && display[i] == '_') {
-            display[i] = guess;
-            revealedCount++;
+int revealLetter(const char *secret, char *display, char letter) {
+    int count = 0;
+    for (int i = 0; secret[i] != '\0'; i++) {
+        if (secret[i] == letter) {
+            display[i] = letter;
+            count++;
         }
     }
-    return revealedCount;
+    return count;
 }
 
-/* Return 1 if the letter was already guessed, otherwise 0. */
-int isAlreadyGuessed(const char *guessedLetters, char letter) {
-    return strchr(guessedLetters, letter) != NULL;
+int isAlreadyGuessed(const char *guessed, char letter) {
+    return strchr(guessed, letter) != NULL;
 }
 
-/* Append a letter to the guessed-letters string. */
-void recordGuess(char *guessedLetters, char letter) {
-    size_t guessedCount = strlen(guessedLetters);
-
-    guessedLetters[guessedCount] = letter;
-    guessedLetters[guessedCount + 1] = '\0';   /* keep it a valid string */
+void addGuess(char *guessed, char letter) {
+    int count = strlen(guessed);
+    guessed[count] = letter;
+    guessed[count + 1] = '\0';
 }
 
-/* The player has won when no '_' is left in the display. */
 int isWordComplete(const char *display) {
     return strchr(display, '_') == NULL;
 }
 
-/* ------------------------------------------------------------------ */
-/* Output                                                             */
-/* ------------------------------------------------------------------ */
-
-/*
- * Draw the hangman. Each body part appears once the number of wrong
- * guesses reaches its threshold: head 1, body 2, left arm 3,
- * right arm 4, left leg 5, right leg 6.
- */
-void drawHangman(int wrongGuesses) {
+void drawHangman(int wrong) {
     printf("\n  +---+\n");
-    printf("  |   %c\n", wrongGuesses >= 1 ? 'O' : ' ');
-    printf("  |  %c%c%c\n",
-           wrongGuesses >= 3 ? '/'  : ' ',
-           wrongGuesses >= 2 ? '|'  : ' ',
-           wrongGuesses >= 4 ? '\\' : ' ');
-    printf("  |  %c %c\n",
-           wrongGuesses >= 5 ? '/'  : ' ',
-           wrongGuesses >= 6 ? '\\' : ' ');
-    printf("  |\n");
-    printf("=====\n");
+    printf("  |   %c\n", wrong >= 1 ? 'O' : ' ');
+    printf("  |  %c%c%c\n", wrong >= 3 ? '/' : ' ', wrong >= 2 ? '|' : ' ', wrong >= 4 ? '\\' : ' ');
+    printf("  |  %c %c\n", wrong >= 5 ? '/' : ' ', wrong >= 6 ? '\\' : ' ');
+    printf("  |\n=====\n");
 }
 
-/* Show the hangman, the hidden word, tried letters and chances left. */
-void printGameStatus(const char *display, const char *guessedLetters,
-                     int wrongGuesses) {
-    drawHangman(wrongGuesses);
-
+void printStatus(const char *display, const char *guessed, int wrong) {
+    drawHangman(wrong);
     printf("\nWord: ");
     for (int i = 0; display[i] != '\0'; i++) {
         printf("%c ", display[i]);
     }
-    printf("\nGuessed letters: %s", guessedLetters);
-    printf("\nChances left: %d\n", MAX_WRONG_GUESSES - wrongGuesses);
+    printf("\nGuessed letters: %s", guessed);
+    printf("\nChances left: %d\n", MAX_WRONG - wrong);
 }
 
 void showInstructions(void) {
@@ -154,8 +94,7 @@ void showInstructions(void) {
     printf("2. Each '_' is a hidden letter.\n");
     printf("3. Guess ONE letter at a time.\n");
     printf("4. Correct letters are revealed in the word.\n");
-    printf("5. Wrong letters cost one chance (you have %d).\n",
-           MAX_WRONG_GUESSES);
+    printf("5. Wrong letters cost one chance (you have %d).\n", MAX_WRONG);
     printf("6. Guess the whole word before chances run out to win!\n");
     printf("---------------------------------------\n");
 }
@@ -170,151 +109,100 @@ void showMenu(void) {
     printf("Enter your choice: ");
 }
 
-/* ------------------------------------------------------------------ */
-/* Input (all keyboard input goes through fgets, never scanf, so that */
-/* bad input cannot leave stray characters behind)                    */
-/* ------------------------------------------------------------------ */
-
-/* Read one line from the keyboard. Returns 0 on end of input, else 1. */
-int readLine(char *buffer, int bufferSize) {
-    if (fgets(buffer, bufferSize, stdin) == NULL) {
-        return 0;
+int readMenuChoice(void) {
+    char input[50];
+    if (scanf("%49s", input) != 1) {
+        return -1;
     }
-
-    /* No newline means the line was longer than the buffer: throw away
-       the rest so it is not mistaken for the next input. */
-    if (strchr(buffer, '\n') == NULL) {
-        int ch;
-        while ((ch = getchar()) != '\n' && ch != EOF) {
-            ;
-        }
+    if (strlen(input) == 1 && input[0] >= '1' && input[0] <= '3') {
+        return input[0] - '0';
     }
-    return 1;
+    return 0;
 }
 
-/*
- * Read one guessed letter. Stores the lowercase letter in *letter, or '\0'
- * if the input was not exactly one letter. Returns 0 on end of input.
- */
-int readGuess(char *letter) {
-    char line[INPUT_BUFFER_SIZE];
-
+int readLetter(char *letter) {
+    char input[50];
     printf("\nEnter a letter: ");
-    if (!readLine(line, sizeof(line))) {
+    if (scanf("%49s", input) != 1) {
         return 0;
     }
-
-    const char *cursor = line;
-    while (*cursor == ' ' || *cursor == '\t') {   /* skip leading spaces */
-        cursor++;
-    }
-
-    /* Valid only if it is one letter followed by the end of the line.
-       The cast to unsigned char keeps isalpha/tolower safe. */
-    if (isalpha((unsigned char)cursor[0]) &&
-        (cursor[1] == '\n' || cursor[1] == '\0')) {
-        *letter = (char)tolower((unsigned char)cursor[0]);
+    if (strlen(input) == 1 && isalpha((unsigned char)input[0])) {
+        *letter = tolower((unsigned char)input[0]);
     } else {
         *letter = '\0';
     }
     return 1;
 }
 
-/* Read a menu choice. Returns 1-3, 0 if invalid, or -1 on end of input. */
-int readMenuChoice(void) {
-    char line[INPUT_BUFFER_SIZE];
+int playGame(void) {
+    const char *secret = pickWord();
+    int length = strlen(secret);
+    char display[40];
+    char guessed[27] = "";
+    int wrong = 0;
 
-    if (!readLine(line, sizeof(line))) {
-        return -1;
-    }
-    if ((line[0] == '1' || line[0] == '2' || line[0] == '3') &&
-        (line[1] == '\n' || line[1] == '\0')) {
-        return line[0] - '0';
-    }
-    return 0;
-}
+    initDisplay(display, length);
 
-/* ------------------------------------------------------------------ */
-/* Game logic                                                         */
-/* ------------------------------------------------------------------ */
+    while (wrong < MAX_WRONG && !isWordComplete(display)) {
+        printStatus(display, guessed, wrong);
 
-/* Play one round. Returns 1 if won, 0 if lost, -1 if input ended. */
-int playRound(void) {
-    const char *secretWord = pickRandomWord();
-    int wordLength = (int)strlen(secretWord);
-
-    char display[MAX_WORD_LENGTH];
-    char guessedLetters[ALPHABET_SIZE + 1] = "";
-    int wrongGuesses = 0;
-
-    initDisplay(display, wordLength);
-
-    while (wrongGuesses < MAX_WRONG_GUESSES && !isWordComplete(display)) {
-        printGameStatus(display, guessedLetters, wrongGuesses);
-
-        char guess;
-        if (!readGuess(&guess)) {
+        char letter;
+        if (!readLetter(&letter)) {
             return -1;
         }
-
-        /* Invalid and repeated guesses never cost a chance. */
-        if (guess == '\0') {
+        if (letter == '\0') {
             printf("Invalid input! Enter a single letter (a-z).\n");
             continue;
         }
-        if (isAlreadyGuessed(guessedLetters, guess)) {
-            printf("You already tried '%c'. Try another letter.\n", guess);
+        if (isAlreadyGuessed(guessed, letter)) {
+            printf("You already tried '%c'. Try another letter.\n", letter);
             continue;
         }
 
-        recordGuess(guessedLetters, guess);
+        addGuess(guessed, letter);
 
-        int matchCount = revealLetter(secretWord, display, guess);
-        if (matchCount > 0) {
-            printf("Good guess! '%c' appears %d time%s.\n",
-                   guess, matchCount, matchCount == 1 ? "" : "s");
+        int matches = revealLetter(secret, display, letter);
+        if (matches > 0) {
+            printf("Good guess! '%c' appears %d time%s.\n", letter, matches, matches == 1 ? "" : "s");
         } else {
-            wrongGuesses++;
-            printf("Sorry, '%c' is not in the word.\n", guess);
+            wrong++;
+            printf("Sorry, '%c' is not in the word.\n", letter);
         }
     }
 
-    /* Round over: show the final state, then the result. */
-    printGameStatus(display, guessedLetters, wrongGuesses);
+    printStatus(display, guessed, wrong);
     if (isWordComplete(display)) {
-        printf("\n*** YOU WON! The word was: %s ***\n", secretWord);
+        printf("\n*** YOU WON! The word was: %s ***\n", secret);
         return 1;
     }
-    printf("\n*** YOU LOST! The word was: %s ***\n", secretWord);
+    printf("\n*** YOU LOST! The word was: %s ***\n", secret);
     return 0;
 }
 
 int main(void) {
-    int winCount = 0;
-    int lossCount = 0;
-    int menuChoice;
+    int wins = 0;
+    int losses = 0;
+    int choice;
 
-    srand((unsigned)time(NULL));   /* seed so the word differs each run */
+    srand(time(NULL));
 
     do {
         showMenu();
-        menuChoice = readMenuChoice();
+        choice = readMenuChoice();
 
-        switch (menuChoice) {
+        switch (choice) {
             case 1: {
-                int roundResult = playRound();
-
-                if (roundResult == 1) {
-                    winCount++;
-                } else if (roundResult == 0) {
-                    lossCount++;
+                int result = playGame();
+                if (result == -1) {
+                    choice = -1;
+                    break;
+                }
+                if (result == 1) {
+                    wins++;
                 } else {
-                    menuChoice = -1;   /* input ended: leave the loop */
+                    losses++;
                 }
-                if (roundResult != -1) {
-                    printf("Score -> Wins: %d  Losses: %d\n",
-                           winCount, lossCount);
-                }
+                printf("Score -> Wins: %d  Losses: %d\n", wins, losses);
                 break;
             }
             case 2:
@@ -323,12 +211,10 @@ int main(void) {
             case 0:
                 printf("Invalid choice! Please enter 1, 2 or 3.\n");
                 break;
-            default:   /* 3 = exit, -1 = input ended: loop condition stops */
-                break;
         }
-    } while (menuChoice != 3 && menuChoice != -1);
+    } while (choice != 3 && choice != -1);
 
-    printf("\nFinal score -> Wins: %d  Losses: %d\n", winCount, lossCount);
+    printf("\nFinal score -> Wins: %d  Losses: %d\n", wins, losses);
     printf("Thanks for playing!\n");
     return 0;
 }
