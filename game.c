@@ -6,7 +6,10 @@
 
 #define MAX_WRONG 6
 
-const char *words[] = {
+/* Predefined words list (lowercase letters only; add more any time) */
+static const char *words[] = {
+    // dictionary of words 
+    /* programming and computing */
     "computer", "pointer", "program", "keyboard", "function",
     "variable", "compiler", "software", "algorithm", "terminal",
     "memory", "array", "string", "integer", "loop",
@@ -218,3 +221,10 @@ int main(void) {
     printf("Thanks for playing!\n");
     return 0;
 }
+
+
+/*⠤⢤⣤⣤⣤⣤⣤⣤⠀⠀⢰⣀⡆⠀⠀⢠⣤⣤⣤⣤⣤⣤⡤⠤
+⠀⠀  ⠛⣿⣿⣿⣿⣿⣷⣤⣼⣿⣧⣤⣤⣾⣿⣿⣿⣿⣿⠛⠀⠀
+⠀⠀⠀   ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀   ⠉⠙⠿⣿⠿⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   ⠿*/⠀⠀⠀⠀⠀⠀⠀⠀⠀
