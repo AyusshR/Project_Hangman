@@ -25,6 +25,7 @@
 
 /* Predefined word list (lowercase letters only; add more any time) */
 static const char *words[] = {
+    // dictionary of words 
     /* programming and computing */
     "computer", "pointer", "program", "keyboard", "function",
     "variable", "compiler", "software", "algorithm", "terminal",
