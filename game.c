@@ -23,7 +23,7 @@
 #define ALPHABET_SIZE      26   /* letters a-z, so at most 26 guesses     */
 #define INPUT_BUFFER_SIZE  64   /* size of the line buffer for fgets()    */
 
-/* Predefined word list (lowercase letters only; add more any time) */
+/* Predefined words list (lowercase letters only; add more any time) */
 static const char *words[] = {
     // dictionary of words 
     /* programming and computing */
